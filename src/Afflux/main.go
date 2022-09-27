@@ -30,7 +30,10 @@ func main() {
 		go PTraceModule(pBuffer)
 		//启动BuildLog模块
 		blog.BuildLogMain(VdatOut)
-		go func(wg *sync.WaitGroup) { wg.Add(1); blog.Tar(VdatOut); wg.Done() }(&wg)
+		//生成数据库文件
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) { blog.Tar(VdatOut); wg.Done() }(&wg)
+		//终端打印结果
 		olog.BuildLogMain(VdatOut, VlogOut, nil, Vomits, Vsort)
 	case 2:
 		olog.BuildLogMain(VdatIn, VlogOut, nil, Vomits, Vsort)
@@ -44,7 +47,7 @@ func main() {
 	}
 }
 
-//监控模块
+// 监控模块
 func PTraceModule(pBuffer chan<- callsys.PtraceRet) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -74,7 +77,7 @@ func PTraceModule(pBuffer chan<- callsys.PtraceRet) {
 	}
 }
 
-//缓冲模块，用于缓冲并整合数据
+// 缓冲模块，用于缓冲并整合数据
 func TransPtraceToBlog(pBuffer chan callsys.PtraceRet) {
 	recv := <-pBuffer
 	if !PtreeInit(recv) {
