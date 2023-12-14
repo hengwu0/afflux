@@ -20,6 +20,11 @@ func main() {
 	}
 
 	mode := flagParse()
+	//mode:
+	//1:Strace mode
+	//2:Query mode, output log
+	//3:Query mode, query ids
+	//4:Query mode, web-server
 	switch mode {
 	case 1:
 		pBuffer := make(chan callsys.PtraceRet, 1024)
@@ -39,6 +44,8 @@ func main() {
 		olog.BuildLogMain(VdatIn, VlogOut, nil, Vomits, Vsort)
 	case 3:
 		olog.BuildLogMain(VdatIn, VlogOut, Vids, "", "")
+	case 4:
+		olog.BuildLogServe(VdatIn, Vserve)
 	}
 	wg.Wait()
 

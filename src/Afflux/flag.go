@@ -22,6 +22,7 @@ var Vids []int
 var Vomits string
 var Vadditon string
 var Vsort string
+var Vserve string
 var Vcmd []string
 
 func usage() {
@@ -38,6 +39,9 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "\nQuery mode:\n")
 	fmt.Fprintf(os.Stderr, "  -%s \t\t %s\n", "b", "Specify a dataBase FileName")
 	fmt.Fprintf(os.Stderr, "  -%s \t\t %s\n", "i", "Search \"ids\" in dataBaseFile for full message")
+	fmt.Fprintf(os.Stderr, "  -%s \t\t %s\n", "s", "Serve http for querying in a browser")
+	fmt.Fprintf(os.Stderr, "  \t \t\t %s\n", `example1: -s ':8090'`)
+	fmt.Fprintf(os.Stderr, "  \t \t\t %s\n", `example2: -s '192.168.1.1:8090'`)
 	fmt.Fprintf(os.Stderr, "\nCommon flags:\n")
 	fmt.Fprintf(os.Stderr, "  -%s \t\t %s\n", "o", "Output message to file")
 	fmt.Fprintf(os.Stderr, "  -%s \t %s\n", "omit", "omit programs in Output message with leftmost regexp")
@@ -51,10 +55,11 @@ func usage() {
 }
 
 func flagParse() int {
-	var fcmd, ids, fout, bin, omits, addition, sort, loder string
+	var fcmd, ids, fout, bin, omits, addition, sort, loder, serve string
 	var O1, O2, O3, t bool
 	flag.StringVar(&bin, "b", "", "Specify a dataBase `filename`")
 	flag.StringVar(&ids, "i", "", "Search `\"ids\"` in DataFile for full message")
+	flag.StringVar(&serve, "s", "", "Serve `http` for querying in a browser")
 	flag.StringVar(&fout, "o", "", "Output message to `file`")
 	flag.StringVar(&fcmd, "f", "", "Exec commands from the `file`")
 	flag.StringVar(&omits, "omit", "", "omit programs in Output message with `regexp`")
@@ -88,7 +93,7 @@ func flagParse() int {
 		}
 	}
 	if (fcmd != "" || flag.NArg() == 1 || t || Verr || loder != "-1") &&
-		(bin != "" || ids != "") {
+		(bin != "" || ids != "" || serve != "") {
 		fmt.Fprintf(os.Stderr, "Do Not mix two modes!\n")
 		fmt.Fprintf(os.Stderr, "Try '%s -h' for more information.\n", os.Args[0])
 		return 0
@@ -159,6 +164,7 @@ func flagParse() int {
 	//1:Strace mode
 	//2:Query mode, output log
 	//3:Query mode, query ids
+	//4:Query mode, web-server
 	Vcmd = make([]string, 0, 3)
 	if fcmd != "" && flag.NArg() == 0 {
 		if _, err := ioutil.ReadFile(fcmd); err != nil {
@@ -185,6 +191,17 @@ func flagParse() int {
 		return 0
 	}
 
+	if bin != "" && serve != "" {
+		if ids != "" {
+			fmt.Fprintf(os.Stderr, "WARNING: -i '%s' ignored!!\n", ids)
+		}
+		if sort != "" {
+			fmt.Fprintf(os.Stderr, "WARNING: -sort '%s' ignored!!\n", sort)
+		}
+		VdatIn = bin
+		Vserve = serve
+		return 4
+	}
 	if ids != "" && bin != "" {
 		VdatIn = bin
 		tmp := strings.Fields(ids)

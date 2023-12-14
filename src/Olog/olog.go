@@ -141,3 +141,22 @@ func ReadTail(src []byte, sort string) {
 	baseTail.Sort(sort, logs)
 	return
 }
+
+func BuildLogServe(fin, ipport string) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("dataBase(%s) corrupted!!!\n", fin)
+		}
+	}()
+
+	if !Init(fin, "") {
+		return
+	}
+	defer Close()
+
+	offHead, offBody, offTail = blog.ReadBlogHead(logs[blog.BlogHeadSize-8*3:])
+	offHead += 4 //head大小目前暂未使用
+	ReadTail(logs[offTail:], "id")
+	
+	Serve(ipport)
+}

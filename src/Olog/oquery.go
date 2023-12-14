@@ -13,7 +13,10 @@ func max(a, b int) int {
 	return b
 }
 
-//查两遍，并不会减少多少程序性能
+// 查两遍，并不会减少多少程序性能
+// 先查一遍所有pids的env，并计数
+// 再查一遍所有pids的所有信息，当需要打印pid的env时，
+// 可以根据env计数，判定是否为Common environment variable
 func Query(pids []int) {
 	Env := make(map[string]int)
 	count := 0
