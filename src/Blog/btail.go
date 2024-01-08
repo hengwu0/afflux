@@ -296,6 +296,8 @@ func WriteBody(t *TailSubject) {
 }
 */
 
+
+// 搜索pid，并逆序返回tree调用链的数组
 func (s *TailSubject) Search(pid uint32) []int64 {
 	if s == nil {
 		return nil
@@ -307,6 +309,29 @@ func (s *TailSubject) Search(pid uint32) []int64 {
 		return append(r, s.Index)
 	}
 	if r := s.Right.Search(pid); r != nil {
+		return r
+	}
+	return nil
+}
+
+// 搜索pid，并返回它的所有子命令集
+func (s *TailSubject) SearchChildren(pid uint32) []int64 {
+	if s == nil {
+		return nil
+	}
+	if s.Pid == pid {
+		ss := s.Left	//收集第一个子命令
+		res := make([]int64, 0, 2)
+		for ss != nil { // 收集其他兄弟子命令
+			res = append(res, ss.Index)
+			ss = ss.Right
+		}
+		return res
+	}
+	if r := s.Left.SearchChildren(pid); r != nil {
+		return r
+	}
+	if r := s.Right.SearchChildren(pid); r != nil {
 		return r
 	}
 	return nil

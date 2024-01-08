@@ -156,7 +156,7 @@ func BuildLogServe(fin, ipport string) {
 
 	offHead, offBody, offTail = blog.ReadBlogHead(logs[blog.BlogHeadSize-8*3:])
 	offHead += 4 //head大小目前暂未使用
-	ReadTail(logs[offTail:], "id")
+	ReadTail(logs[offTail:], "")
 	
 	Serve(ipport)
 }
