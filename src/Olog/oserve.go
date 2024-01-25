@@ -15,9 +15,9 @@ type CmdStatus struct {
 	Addition string `json:"add"`
 }
 type CmdObject struct {
-	CmdStatus `json:"cmd_status"`
-	Cmd       string       `json:"cmd"`
-	Children  []*CmdObject `json:"children"`
+	CmdStatus
+	Cmd      string       `json:"cmd"`
+	Children []*CmdObject `json:"children"`
 }
 type CmdDetail struct {
 	Cmd       string     `json:"cmd"`
