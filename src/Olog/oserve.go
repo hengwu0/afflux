@@ -16,8 +16,9 @@ type CmdStatus struct {
 }
 type CmdObject struct {
 	CmdStatus
-	Cmd      string       `json:"cmd"`
-	Children []*CmdObject `json:"children"`
+	Cmd         string       `json:"cmd"`
+	HasChildren bool         `json:"has_children"`
+	Children    []*CmdObject `json:"children"`
 }
 type CmdDetail struct {
 	Cmd       string     `json:"cmd"`
@@ -142,7 +143,9 @@ func GetCmdDetail(id int) *CmdDetail {
 		}
 		cmd.Cmd = fmt.Sprintf("%s %s", baseHead.ReadString(logs[offHead+int64(s.Cmd):]), strings.Join(s.Args, " "))
 		cmd.Children = nil
+		cmd.HasChildren = false
 		beforeCmd.Children = []*CmdObject{cmd}
+		beforeCmd.HasChildren = true
 		beforeCmd = cmd
 	}
 	res.CmdChain = tmp
@@ -242,6 +245,9 @@ func searchChildrenCmds(id int, depth int) []*CmdObject {
 			cmd.Id = int(s.Pid)
 			cmd.Time = s.Time
 			cmd.Children = searchChildrenCmds(cmd.Id, depth)
+			if cmd.Children != nil {
+				cmd.HasChildren = true
+			}
 			res = append(res, cmd)
 		}
 		return res
