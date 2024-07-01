@@ -85,7 +85,6 @@ func StartTrace(buildCmd []string, omit string, addition string) bool {
 func ProcessTrace() PtraceRet {
 	var err error
 	var status syscall.WaitStatus
-	var regs syscall.PtraceRegs
 
 	for {
 		if ptracePid != 0 { //未暂停就不需要continue
@@ -117,10 +116,10 @@ func ProcessTrace() PtraceRet {
 			}
 		//启动子进程
 		case syscall.PTRACE_EVENT_EXEC:
-			if err = syscall.PtraceGetRegs(ptracePid, &regs); err != nil {
-				fmt.Printf("trace getRegs %d failure(%v)!\n", ptracePid, err)
+			if rsp, err := ptraceGetSPreg(ptracePid); err != nil {
+				fmt.Printf("trace getSPreg %d failure(%v)!\n", ptracePid, err)
 			} else {
-				if r, detach := getCmdEnv(ptracePid, uintptr(regs.Rsp), GetPtrSize(regs.Rsp)); r != nil {
+				if r, detach := getCmdEnv(ptracePid, uintptr(rsp), GetPtrSize(rsp)); r != nil {
 					knowpid[ptracePid] = true
 					if detach {
 						syscall.PtraceDetach(ptracePid)
